@@ -55,7 +55,7 @@
 
   <!-- 1. Açılış -->
   <section class="screen active" id="s1">
-    <h1>Seni kırmak istemedim,<br>özür dilerim aşkım 🤍</h1>
+    <h1>Zeynep, seni kırmak istemedim,<br>özür dilerim aşkım ❤️</h1>
     <button class="main" id="start">Bana dokun 🌿</button>
   </section>
 
@@ -73,7 +73,7 @@
   <section class="screen" id="s3">
     <svg class="wreath" id="wreath" viewBox="0 0 200 200" aria-hidden="true"></svg>
     <h1 style="margin-bottom:16px">Sana defne tacımı uzatıyorum 🌿</h1>
-    <p>Barış için, yeniden başlamak için.</p>
+    <p>Barış için.</p>
     <p><b>Bir araya geleceğiz.</b></p>
     <p class="small">Seni seviyorum. <span class="heart">♥</span></p>
   </section>
@@ -119,9 +119,9 @@
     const maxY = box.clientHeight - no.offsetHeight;
     no.style.left = Math.random()*maxX + "px";
     no.style.top  = Math.max(40, Math.random()*maxY) + "px";
-    if (tries === 2) hint.textContent = "Tuşa basamıyorsun gibi... 🙈";
+    if (tries === 2) hint.textContent = "Tuşa basamıyorsun gibi...";
     if (tries === 4) {
-      hint.textContent = "Tamam, anladım, sen de affetmek istiyorsun 🥺";
+      hint.textContent = "Tamam anladım, sen de affetmek istiyorsun 🥺";
       no.textContent = "Affet 💚";
       no.style.background = "var(--green)"; no.style.color = "#fff";
       no.removeEventListener("mouseover", dodge);
