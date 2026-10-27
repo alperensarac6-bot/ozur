@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sana bir şey söylemem lazım</title>
+<style>
+  :root { --cream:#f6efe0; --green:#3d5a40; --green2:#6f9a6b; --gold:#c9a24a; --ink:#2b2b2b; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; margin:0; }
+  body {
+    display:flex; align-items:center; justify-content:center; padding:20px; overflow:hidden;
+    font-family: Georgia, "Times New Roman", serif; color:var(--ink);
+    background: radial-gradient(circle at 30% 20%, #fff8e8 0%, var(--cream) 45%, #e4dcc2 100%);
+  }
+  .card {
+    position:relative; z-index:2; width:100%; max-width:480px; text-align:center;
+    padding:36px 24px; border-radius:24px;
+    background:rgba(255,255,255,.55); backdrop-filter: blur(6px);
+    box-shadow:0 10px 40px rgba(61,90,64,.18);
+  }
+  .screen { display:none; animation: fade .9s ease both; }
+  .screen.active { display:block; }
+  @keyframes fade { from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;} }
+
+  h1 { font-size:1.55rem; line-height:1.4; margin:0 0 28px; font-weight:normal; }
+  p  { font-size:1.15rem; line-height:1.6; margin:0 0 16px; }
+  .small { font-size:.95rem; opacity:.75; }
+
+  button {
+    font-family:inherit; font-size:1.1rem; cursor:pointer; border:0; border-radius:999px;
+    padding:14px 28px; transition: transform .15s ease, box-shadow .15s ease;
+  }
+  button:active { transform: scale(.96); }
+  .main { background:var(--green); color:#fff; box-shadow:0 6px 18px rgba(61,90,64,.35); }
+  .main:hover { transform: translateY(-2px); }
+  #choices { position:relative; height:130px; margin-top:8px; }
+  #yes { position:absolute; left:50%; top:0; transform:translateX(-120%); background:var(--green); color:#fff; }
+  #no  { position:absolute; left:50%; top:0; transform:translateX(20%); background:#e3dccb; color:var(--ink); }
+  #no.free { transform:none; }
+
+  .wreath { width:200px; height:200px; margin:0 auto 12px; display:block; overflow:visible; }
+  .leaf { opacity:0; transform-box:fill-box; transform-origin:center; animation: pop .5s ease forwards; }
+  @keyframes pop { from{opacity:0; transform:scale(.2);} to{opacity:1; transform:scale(1);} }
+  .heart { color:#c0505a; }
+
+  .falling { position:fixed; top:-30px; z-index:1; pointer-events:none; font-size:20px; opacity:.8;
+             animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- 1. Açılış -->
+  <section class="screen active" id="s1">
+    <h1>Seni kırmak istemedim,<br>özür dilerim aşkım 🤍</h1>
+    <button class="main" id="start">Bana dokun 🌿</button>
+  </section>
+
+  <!-- 2. Seçenekler -->
+  <section class="screen" id="s2">
+    <h1>Peki, ne dersin?</h1>
+    <div id="choices">
+      <button id="yes">Affet 💚</button>
+      <button id="no">Affetme</button>
+    </div>
+    <p class="small" id="hint"></p>
+  </section>
+
+  <!-- 3. Defne tacı -->
+  <section class="screen" id="s3">
+    <svg class="wreath" id="wreath" viewBox="0 0 200 200" aria-hidden="true"></svg>
+    <h1 style="margin-bottom:16px">Sana defne tacımı uzatıyorum 🌿</h1>
+    <p>Barış için, yeniden başlamak için.</p>
+    <p><b>Bir araya geleceğiz.</b></p>
+    <p class="small">Seni seviyorum. <span class="heart">♥</span></p>
+  </section>
+
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  function show(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    $(id).classList.add("active");
+  }
+
+  // Dökülen yapraklar
+  function leafRain(count) {
+    const icons = ["🌿","🍃","🌿","💚"];
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const el = document.createElement("div");
+        el.className = "falling";
+        el.textContent = icons[Math.floor(Math.random()*icons.length)];
+        el.style.left = Math.random()*100 + "vw";
+        el.style.animationDuration = (4 + Math.random()*4) + "s";
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 9000);
+      }, i * 150);
+    }
+  }
+  leafRain(8);
+
+  // 1 -> 2
+  $("start").addEventListener("click", () => { show("s2"); });
+
+  // "Affetme" kaçar, birkaç denemeden sonra "Affet"e dönüşür
+  const no = $("no"), box = $("choices"), hint = $("hint");
+  let tries = 0;
+  function dodge(e) {
+    if (e) e.preventDefault();
+    if (tries >= 4) return;
+    tries++;
+    no.classList.add("free");
+    const maxX = box.clientWidth - no.offsetWidth;
+    const maxY = box.clientHeight - no.offsetHeight;
+    no.style.left = Math.random()*maxX + "px";
+    no.style.top  = Math.max(40, Math.random()*maxY) + "px";
+    if (tries === 2) hint.textContent = "Tuşa basamıyorsun gibi... 🙈";
+    if (tries === 4) {
+      hint.textContent = "Tamam, anladım, sen de affetmek istiyorsun 🥺";
+      no.textContent = "Affet 💚";
+      no.style.background = "var(--green)"; no.style.color = "#fff";
+      no.removeEventListener("mouseover", dodge);
+      no.removeEventListener("touchstart", dodge);
+    }
+  }
+  no.addEventListener("mouseover", dodge);
+  no.addEventListener("touchstart", dodge, {passive:false});
+  no.addEventListener("click", () => { if (tries >= 4) forgive(); else dodge(); });
+  $("yes").addEventListener("click", forgive);
+
+  // Defne tacı çizimi
+  function buildWreath() {
+    const svg = $("wreath");
+    svg.innerHTML = "";
+    const NS = "http://www.w3.org/2000/svg";
+    const n = 13, r = 70;
+    let delay = 0;
+    for (let i = 0; i < n; i++) {
+      const theta = 85 - i * (150 / (n - 1));          // alttan yukarı doğru
+      const rad = theta * Math.PI / 180;
+      [false, true].forEach(mirror => {
+        [-1, 1].forEach(side => {
+          const x0 = 100 + r * Math.cos(rad);
+          const y0 = 100 + r * Math.sin(rad);
+          const off = side * 7;                         // iç/dış yaprak
+          const x = x0 + off * Math.cos(rad);
+          const y = y0 + off * Math.sin(rad);
+          const leaf = document.createElementNS(NS, "ellipse");
+          const cx = mirror ? 200 - x : x;
+          const rot = mirror ? -(theta + side*30) : (theta + side*30);
+          leaf.setAttribute("cx", cx);
+          leaf.setAttribute("cy", y);
+          leaf.setAttribute("rx", 4.5);
+          leaf.setAttribute("ry", 12);
+          leaf.setAttribute("transform", `rotate(${rot} ${cx} ${y})`);
+          leaf.setAttribute("fill", side === 1 ? "#6f9a6b" : "#3d5a40");
+          leaf.setAttribute("class", "leaf");
+          leaf.style.animationDelay = (delay += 0.05) + "s";
+          svg.appendChild(leaf);
+        });
+      });
+    }
+    // alttaki kurdele
+    const heart = document.createElementNS(NS, "text");
+    heart.setAttribute("x", 100); heart.setAttribute("y", 182);
+    heart.setAttribute("text-anchor", "middle");
+    heart.setAttribute("font-size", "22");
+    heart.setAttribute("fill", "#c0505a");
+    heart.textContent = "♥";
+    svg.appendChild(heart);
+  }
+
+  function forgive() {
+    show("s3");
+    buildWreath();
+    leafRain(35);
+  }
+</script>
+</body>
+</html>
